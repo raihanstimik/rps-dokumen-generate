@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Penyusunan Dokumen RPS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-700 antialiased min-h-screen">
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Penyusunan Rencana Pembelajaran Semester (RPS)</h1>
+                <p class="text-sm text-slate-500 mt-0.5">STMIK Mardira Indonesia • Panel Akademik</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <a href="/reset_all" onclick="return confirm('Apakah Anda yakin ingin menghapus seluruh identitas mata kuliah dan tabel sesi ini? Data yang terhapus tidak dapat dikembalikan.');" class="inline-flex items-center gap-2 bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-sm font-medium py-2.5 px-4 rounded-xl border border-slate-200 hover:border-rose-200 shadow-sm transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    Reset Form
+                </a>
+
+                {% if data and mk and mk.nama_mk %}
+                <a href="/download_pdf" target="_blank" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2.5 px-5 rounded-xl shadow-sm transition">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Cetak Dokumen RPS
+                </a>
+                {% endif %}
+            </div>
+        </header>
+
+        {% if mk and mk.nama_mk %}
+        <div class="bg-indigo-950 text-indigo-100 p-6 rounded-2xl shadow-sm mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <span class="text-xs text-indigo-300 font-semibold uppercase tracking-wider">Mata Kuliah</span>
+                <p class="text-lg font-bold text-white mt-0.5">{{ mk.nama_mk }}</p>
+            </div>
+            <div>
+                <span class="text-xs text-indigo-300 font-semibold uppercase tracking-wider">Semester Berjalan</span>
+                <p class="text-lg font-bold text-white mt-0.5">Semester {{ mk.semester }}</p>
+            </div>
+            <div>
+                <span class="text-xs text-indigo-300 font-semibold uppercase tracking-wider">Tanggal Dokumen</span>
+                <p class="text-lg font-bold text-white mt-0.5">{{ mk.tgl_penyusunan }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="space-y-6">
+                
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
+                        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold text-white">1</span>
+                        <h2 class="text-sm font-bold text-slate-800">Identitas Mata Kuliah</h2>
+                    </div>
+                    <form action="/update_mk" method="POST" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Mata Kuliah & Kode</label>
+                            <input type="text" name="nama_mk" value="{{ mk.nama_mk if mk else '' }}" required placeholder="Contoh: PEMROGRAMAN BERORIENTASI OBJEK (IF 3224)" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Semester</label>
+                                <input type="text" name="semester" value="{{ mk.semester if mk else '' }}" required placeholder="Contoh: 4 (EMPAT)" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Tgl Penyusunan</label>
+                                <input type="date" name="tgl_penyusunan" value="{{ mk.tgl_raw if mk else '' }}" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium py-2.5 px-4 rounded-lg transition">
+                            {% if mk and mk.nama_mk %}Perbarui Identitas{% else %}Simpan & Lanjutkan{% endif %}
+                        </button>
+                    </form>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm {% if not mk or not mk.nama_mk %}opacity-40 pointer-events-none select-none{% endif %}">
+                    <div class="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
+                        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">2</span>
+                        <h2 class="text-sm font-bold text-slate-800">Tambah Baris Sesi</h2>
+                    </div>
+                    <form action="/add_sesi" method="POST" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Tanggal Sesi</label>
+                                <input type="date" name="tgl_sesi" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Nomor Sesi</label>
+                                <input type="text" name="no_sesi" required placeholder="Misal: 1" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Sub-CP-MK</label>
+                            <textarea name="sub_cp_mk" rows="3" required placeholder="Masukkan capaian kompetensi..." class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Sub-Pokok Bahasan / Materi</label>
+                            <textarea name="sub_pokok_bahasan" rows="3" required placeholder="Masukkan materi perkuliahan..." class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium py-2.5 px-4 rounded-lg transition shadow-sm">
+                            Tambahkan Sesi Ke Tabel
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                        <span class="text-sm font-bold text-slate-800">Pratinjau Tabel Struktur RPS</span>
+                        <span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-medium">{{ data|length }} Sesi Terdaftar</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100/50 text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                                    <th class="py-3.5 px-4 text-center w-16">Sesi</th>
+                                    <th class="py-3.5 px-4 text-center w-28">Tanggal</th>
+                                    <th class="py-3.5 px-4 w-5/12">Sub-CP-MK</th>
+                                    <th class="py-3.5 px-4 w-5/12">Sub-Pokok Bahasan / Materi</th>
+                                    <th class="py-3.5 px-4 text-center w-20">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                                {% for row in data %}
+                                <tr class="hover:bg-slate-50/50 transition">
+                                    <td class="py-4 px-4 text-center font-bold text-slate-800 bg-slate-50/40 border-r border-slate-100">
+                                        {{ row.no_sesi }}
+                                    </td>
+                                    <td class="py-4 px-4 text-center border-r border-slate-100 align-middle">
+                                        <span class="inline-block text-xs text-indigo-700 font-semibold bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100">
+                                            {{ row.tgl_sesi }}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-4 text-slate-800 align-top leading-relaxed whitespace-pre-line">{{ row.sub_cp_mk }}</td>
+                                    <td class="py-4 px-4 text-slate-600 align-top leading-relaxed whitespace-pre-line">{{ row.sub_pokok_bahasan }}</td>
+                                    <td class="py-4 px-4 text-center align-middle">
+                                        <a href="/delete_sesi/{{ row.id }}" class="text-rose-500 hover:text-rose-700 text-xs font-semibold py-1 px-2.5 rounded-md hover:bg-rose-50 transition">
+                                            Hapus
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="py-12 text-center text-slate-400 text-sm">Data tabel kosong. Sesi belum diinput.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
