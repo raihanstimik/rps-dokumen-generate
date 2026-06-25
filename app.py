@@ -192,16 +192,15 @@ def download_pdf():
     pdf.set_font('Helvetica', 'B', 9)
     pdf.set_fill_color(230, 230, 230)
     
-    # Pembagian lebar total halaman A4 (190mm space efektif)
     w_sesi = 15
     w_tgl = 25
     w_cp = 75
     w_mat = 75
     
-    pdf.cell(w_sesi, 8, 'Sesi', border=1, align='C', fill=True)
-    pdf.cell(w_tgl, 8, 'Tanggal', border=1, align='C', fill=True)
-    pdf.cell(w_cp, 8, 'Sub-CP-MK', border=1, align='C', fill=True)
-    pdf.cell(w_mat, 8, 'Sub-Pokok Bahasan / Materi', border=1, align='C', fill=True)
+    pdf.cell(w_sesi, 8, 'Sesi', 1, 0, 'C', True)
+    pdf.cell(w_tgl, 8, 'Tanggal', 1, 0, 'C', True)
+    pdf.cell(w_cp, 8, 'Sub-CP-MK', 1, 0, 'C', True)
+    pdf.cell(w_mat, 8, 'Sub-Pokok Bahasan / Materi', 1, 0, 'C', True)
     pdf.ln()
 
     # --- RENDER BARIS TABEL DINAMIS ---
@@ -218,10 +217,10 @@ def download_pdf():
             pdf.add_page()
             pdf.set_font('Helvetica', 'B', 9)
             pdf.set_fill_color(230, 230, 230)
-            pdf.cell(w_sesi, 8, 'Sesi', border=1, align='C', fill=True)
-            pdf.cell(w_tgl, 8, 'Tanggal', border=1, align='C', fill=True)
-            pdf.cell(w_cp, 8, 'Sub-CP-MK', border=1, align='C', fill=True)
-            pdf.cell(w_mat, 8, 'Sub-Pokok Bahasan / Materi', border=1, align='C', fill=True)
+            pdf.cell(w_sesi, 8, 'Sesi', 1, 0, 'C', True)
+            pdf.cell(w_tgl, 8, 'Tanggal', 1, 0, 'C', True)
+            pdf.cell(w_cp, 8, 'Sub-CP-MK', 1, 0, 'C', True)
+            pdf.cell(w_mat, 8, 'Sub-Pokok Bahasan / Materi', 1, 0, 'C', True)
             pdf.ln()
             pdf.set_font('Helvetica', '', 9)
 
@@ -230,35 +229,40 @@ def download_pdf():
         
         # Kolom 1: Sesi
         pdf.set_xy(x_start, y_start + 2)
-        pdf.cell(w_sesi, 5, str(item['no_sesi']), border=0, align='C')
+        pdf.cell(w_sesi, 5, str(item['no_sesi']), 0, 0, 'C')
         
         # Kolom 2: Tanggal Terpisah
         pdf.set_xy(x_start + w_sesi, y_start + 2)
-        pdf.cell(w_tgl, 5, str(item['tgl_sesi']), border=0, align='C')
+        pdf.cell(w_tgl, 5, str(item['tgl_sesi']), 0, 0, 'C')
         
         # Kolom 3: Sub-CP-MK
         pdf.set_xy(x_start + w_sesi + w_tgl, y_start + 2)
-        pdf.multi_cell(w_cp, 5, item['sub_cp_mk'], border=0, align='L')
+        pdf.multi_cell(w_cp, 5, item['sub_cp_mk'], 0, 'L')
         
         # Kolom 4: Pokok Bahasan
         pdf.set_xy(x_start + w_sesi + w_tgl + w_cp, y_start + 2)
-        pdf.multi_cell(w_mat, 5, item['sub_pokok_bahasan'], border=0, align='L')
+        pdf.multi_cell(w_mat, 5, item['sub_pokok_bahasan'], 0, 'L')
         
         # Grid Garis Pembungkus Seluruh Kolom
         pdf.set_xy(x_start, y_start)
-        pdf.cell(w_sesi, row_h, '', border=1)
-        pdf.cell(w_tgl, row_h, '', border=1)
-        pdf.cell(w_cp, row_h, '', border=1)
-        pdf.cell(w_mat, row_h, '', border=1)
+        pdf.cell(w_sesi, row_h, '', 1)
+        pdf.cell(w_tgl, row_h, '', 1)
+        pdf.cell(w_cp, row_h, '', 1)
+        pdf.cell(w_mat, row_h, '', 1)
         
         pdf.set_xy(x_start, y_start + row_h)
 
+    # --- PENAMAAN FILE OUTPUT SESUAI NAMA MATA KULIAH ---
     nama_matkul = mk['nama_mk'] if mk and mk['nama_mk'] else "Mata_Kuliah"
     filename_clean = re.sub(r'[^a-zA-Z0-9_\-]', '_', nama_matkul.strip())
     download_name = f"RPS_{filename_clean}.pdf"
 
+    # --- PERBAIKAN OUTPUT BERDASARKAN PARAMETER DETEKSI STRING/BYTES ---
+    pdf_string = pdf.output(dest='S') # Memaksa output menjadi raw string ('S')
+    
     pdf_output = io.BytesIO()
-    pdf_output.write(pdf.output())
+    # Mengonversi string murni FPDF ke format bytes menggunakan encoding latin-1 agar aman bagi PDF
+    pdf_output.write(pdf_string.encode('latin-1')) 
     pdf_output.seek(0)
     
     return send_file(pdf_output, mimetype='application/pdf', as_attachment=False, download_name=download_name)
